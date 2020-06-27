@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lihui.hgshop.dao.UserDao">
+
+
+	<select id="login" resultType="User">
+		select * from hg_user where username=#{username} and password=#{password} limit 1
+	</select>
+	
+	<insert id="register">
+		insert into hg_user(username,password,state) values
+		(#{username},#{password},1)
+	</insert>
+	
+	<insert id="addCart">
+		insert into hg_cart values
+		(null,#{uid},#{skuid},#{pnum},now(),now(),#{sumTotal})
+	</insert>
+	
+	<select id="findCartList" resultMap="cartMap">
+		select c.id,c.uid,c.skuid,c.pnum,c.createtime,c.updatetime,c.sum_total ,k.price,k.market_price,k.sell_point,k.title,k.stock_count,k.spu_id,k.cart_thumbnail
+		from hg_cart  c LEFT JOIN hg_sku k on c.skuid=k.id where c.uid=#{uid} ORDER BY c.updatetime desc
+	</select>
+	<select id="findCartByid" resultMap="cartMap">
+		select c.id,c.uid,c.skuid,c.pnum,c.createtime,c.updatetime,c.sum_total ,k.price,k.market_price,k.sell_point,k.title,k.stock_count,k.spu_id,k.cart_thumbnail
+		from hg_cart  c LEFT JOIN hg_sku k on c.skuid=k.id 
+		WHERE c.id in 
+ 			<foreach collection="array" open="(" separator="," close=")" item="id">
+ 				#{id}
+ 			</foreach>
+	</select>
+	
+	<resultMap type="Cart" id="cartMap">
+		<id property="id" column="id"/>
+		<result property="uid" column="uid"/>
+		<result property="skuid" column="skuid"/>
+		<result property="pnum" column="pnum"/>
+		<result property="createtime" column="createtime"/>
+		<result property="updatetime" column="updatetime"/>
+		<result property="sumTotal" column="sum_total"/>
+		<association property="sku" javaType="com.lihui.hgshop.domain.Sku" >
+			<result property="title" column="title"/>
+			<result property="sellPoint" column="sell_point"/>
+			<result property="price" column="price"/>
+			<result property="marketPrice" column="market_price"/>
+			<result property="stockCount" column="stock_count"/>
+			<result property="spuId" column="spu_id"/>
+			<result property="cartThumbnail" column="cart_thumbnail"/>
+		</association>
+	</resultMap>
+	
+	<delete id="deleteCart">
+		delete from hg_cart where uid=#{uid} and id in 
+ 		<foreach collection="ids" open="(" separator="," close=")"  item="id">
+ 			#{id}
+ 		</foreach>
+	</delete>
+	
+</mapper>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lihui.hgshop.dao.OrderDao">
+
+	<insert id="createOrder" useGeneratedKeys="true" keyProperty="oid">
+		insert into orders values 
+		(null,#{uid},#{sumtotal},#{address},CURDATE())
+	</insert>
+	
+	<insert id="createOrderDetail">
+		insert into ordersdetail (skuid,total,oid,pnum) values(#{skuid},#{total},#{oid},#{pnum})
+	</insert>
+	
+	<select id="findOrdersList" resultMap="orderMap">
+		select o.*,d.id,d.skuid,d.total,d.pnum,k.title,k.sell_point,k.cart_thumbnail,k.price from orders o LEFT JOIN  ordersdetail d on o.oid=d.oid 
+		LEFT JOIN hg_sku k on k.id=d.skuid
+		where o.uid=#{uid} ORDER BY o.create_time desc
+	</select>
+	<select id="getOrdersById" resultMap="orderMap">
+		select o.*,d.id,d.skuid,d.total,d.pnum,k.title,k.sell_point,k.cart_thumbnail,k.price from orders o LEFT JOIN  ordersdetail d on o.oid=d.oid 
+		LEFT JOIN hg_sku k on k.id=d.skuid
+		where o.oid=#{id}
+	</select>
+	
+	<resultMap type="Orders" id="orderMap">
+		<id property="oid" column="oid"/>
+		<result property="uid" column="uid"/>
+		<result property="sumtotal" column="sumtotal"/>
+		<result property="address" column="address"/>
+		<result property="createTime" column="create_time"/>
+		<collection property="details" ofType="OrderDetail">
+			<id property="id" column="id"/>
+			<result property="skuid" column="skuid"/>
+			<result property="total" column="total"/>
+			<result property="oid" column="oid"/>
+			<result property="pnum" column="pnum"/>
+			<result property="title" column="title"/>
+			<result property="sellPoint" column="sell_point"/>
+			<result property="price" column="price"/>
+			<result property="cartThumbnail" column="cart_thumbnail"/>
+			
+		</collection>
+	</resultMap>
+	
+</mapper>

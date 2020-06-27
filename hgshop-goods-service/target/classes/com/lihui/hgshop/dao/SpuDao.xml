@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lihui.hgshop.dao.SpuDao">
+
+
+	<select id="findSpuList" resultMap="spuMap">
+		select * from hg_spu 
+		<where>
+			<if test="null!=goodsName and goodsName!=''">and goods_name like concat('%',#{goodsName},'%')</if>
+			<if test="null!=caption and caption!=''">and caption like concat('%',#{caption},'%')</if>
+			<if test="null!=brandId and brandId!=0">and brand_id =#{brandId}</if>
+			<if test="null!=categoryId and categoryId!=0">and category_id =#{categoryId}</if>
+			<!-- <if test="index==1">
+				order by goods_name
+			</if>
+			<if test="index==2">
+				order by caption
+			</if>
+			<if test="index==3">
+				order by id
+			</if>
+			<if test="rank!=0 and rank==2">
+				desc
+			</if> -->
+		</where>
+		ORDER BY id desc 
+	</select>
+	<select id="findGoodsList" resultMap="goodsMap">
+		select * from hg_tui_goods
+		<where>
+			<if test="null!=goodsName and goodsName!=''">and goods_name like concat('%',#{goodsName},'%')</if>
+			<if test="null!=caption and caption!=''">and caption like concat('%',#{caption},'%')</if>
+			<if test="null!=brandId and brandId!=0">and brand_id =#{brandId}</if>
+			<if test="null!=categoryId and categoryId!=0">and category_id =#{categoryId}</if>
+			
+		</where>
+		ORDER BY id desc 
+	</select>
+	<select id="findSpuById" resultMap="spuMap">
+		select * from hg_spu 
+		where id=#{id}
+	</select>
+	
+	<resultMap type="Spu" id="spuMap">
+		<id property="id" column="id"/>
+		<result property="goodsName" column="goods_name"/>
+		<result property="isMarketable" column="is_marketable"/>
+		<result property="brandId" column="brand_id"/>
+		<result property="caption" column="caption"/>
+		<result property="categoryId" column="category_id"/>
+		<result property="smallPic" column="small_pic"/>
+		<association property="brand" select="com.lihui.hgshop.dao.BrandDao.findBrandById"  column="brand_id"></association>
+		<association property="category" select="com.lihui.hgshop.dao.CategoryDao.findCategoryById" column="category_id"></association>
+	</resultMap>
+	<resultMap type="Goods" id="goodsMap">
+		<id property="id" column="id"/>
+		<result property="goodsName" column="goods_name"/>
+		<result property="isMarketable" column="is_marketable"/>
+		<result property="brandId" column="brand_id"/>
+		<result property="caption" column="caption"/>
+		<result property="categoryId" column="category_id"/>
+		<result property="smallPic" column="small_pic"/>
+		<association property="brand" select="com.lihui.hgshop.dao.BrandDao.findBrandById"  column="brand_id"></association>
+		<association property="category" select="com.lihui.hgshop.dao.CategoryDao.findCategoryById" column="category_id"></association>
+	</resultMap>
+	
+	<insert id="add" useGeneratedKeys="true" keyProperty="id">
+		insert into hg_spu values(null,#{goodsName},#{isMarketable},#{brandId},#{caption},#{categoryId},#{smallPic})
+	</insert>
+	
+	<insert id="addGoods" >
+		insert into hg_tui_goods values
+		(null,#{goodsName},#{isMarketable},#{brandId},#{caption},#{categoryId},#{smallPic})
+	</insert>
+	
+	
+	<update id="update">
+		update hg_spu set goods_name=#{goodsName},is_marketable=#{isMarketable},brand_id=#{brandId},caption=#{caption},category_id=#{categoryId},small_pic=#{smallPic}
+		where id=#{id}
+	</update>
+	<update id="updateStatus">
+		update hg_spu set is_marketable=#{status} where id=#{id}
+	</update>
+	
+	<delete id="delete">
+		delete from hg_spu where id in
+		<foreach collection="array" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+	
+</mapper>

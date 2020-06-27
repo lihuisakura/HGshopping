@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lihui.hgshop.dao.SkuDao">
+
+	<select id="findSkuList" resultMap="SkuMap">
+		select * from hg_sku ORDER BY update_time desc
+	</select>
+	<select id="findSkuById" resultMap="SkuMap">
+		select * from hg_sku 
+		where id=#{value}
+	</select>
+	<select id="findSkuBySpuId" resultMap="SkuMap">
+		select * from hg_sku 
+		where spu_id=#{id}
+	</select>
+	
+	<resultMap type="Sku" id="SkuMap">
+		<id property="id" column="id"/>
+		<result property="title" column="title"/>
+		<result property="sellPoint" column="sell_point"/>
+		<result property="price" column="price"/>
+		<result property="stockCount" column="stock_count"/>
+		<result property="barcode" column="barcode"/>
+		<result property="image" column="image"/>
+		<result property="status" column="status"/>
+		<result property="createTime" column="create_time"/>
+		<result property="updateTime" column="update_time"/>
+		<result property="costPrice" column="cost_price"/>
+		<result property="marketPrice" column="market_price"/>
+		<result property="spuId" column="spu_id"/>
+		<result property="cartThumbnail" column="cart_thumbnail"/>	
+		<collection property="spu" select="com.lihui.hgshop.dao.SpuDao.findSpuById" ofType="Spu" column="spu_id">
+		
+		</collection>
+		<collection property="specOptions" select="com.lihui.hgshop.dao.SpecDao.findSpecBySku" ofType="SpecOption" column="id"></collection>
+	</resultMap>
+		
+		
+	<insert id="addSku" useGeneratedKeys="true" keyProperty="id">
+		insert into hg_sku values
+		(null,#{title},#{sellPoint},#{price},#{stockCount},#{barcode},#{image},#{status},now(),now(),#{costPrice},#{marketPrice},#{spuId},#{cartThumbnail})
+	</insert>	
+	
+	<insert id="addOption">
+		insert into hg_sku_spec values
+		<foreach collection="list" item="l" separator=",">
+		(null,#{id},#{l.specId},#{l.id})
+		</foreach>
+	</insert>
+	
+	<update id="updateSku">
+		update hg_sku set
+		title=#{title},sell_point=#{sellPoint},price=#{price},image=#{image},update_time=now(),cart_thumbnail=#{cartThumbnail}
+		where id=#{id}
+	</update>
+	
+	<delete id="deleteOption">
+		delete from hg_sku_spec where sku_id=#{id}
+	</delete>
+	
+	<delete id="deleteSku">
+		delete from hg_sku where id in
+		<foreach collection="array" item="id" open="(" separator="," close=")">
+		#{id}
+		</foreach>
+	</delete>
+	<delete id="deleteOptions">
+		delete from hg_sku_spec where sku_id in
+		<foreach collection="array" item="id" open="(" separator="," close=")">
+		#{id}
+		</foreach>
+	</delete>
+	
+	<update id="updateCount">
+		update  hg_sku set stock_count=stock_count-#{pnum} where id=#{skuid}
+	</update>
+	
+</mapper>

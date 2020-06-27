@@ -1,0 +1,6 @@
+com\lihui\hgshop\utils\ElSearchUtil.class
+com\lihui\hgshop\controller\UserController.class
+com\lihui\hgshop\utils\ElSearchUtil$1.class
+com\lihui\hgshop\controller\GoodsController.class
+com\lihui\hgshop\controller\IndexController.class
+com\lihui\hgshop\kafka\SpuMessageListner.class

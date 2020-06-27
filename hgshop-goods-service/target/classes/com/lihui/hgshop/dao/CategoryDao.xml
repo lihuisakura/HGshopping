@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lihui.hgshop.dao.CategoryDao">
+
+	<select id="findCategoryList" resultMap="categoryMap">
+		select * from hg_category where  parent_id=#{id}
+	</select>
+	<select id="findCategoryById" resultMap="categoryMap">
+		select * from hg_category where  id=#{id}
+	</select>
+	
+
+	<resultMap type="Category" id="categoryMap">
+		<id property="id" column="id"/>
+		<result property="parentId" column="parent_id"/>
+		<result property="name" column="name"/>
+		<result property="path" column="path"/>
+		<collection property="children" select="findCategoryList"  column="id">
+			
+		</collection>
+	</resultMap>
+	
+	<insert id="addCategory">
+		insert into hg_category values(null,#{parentId},#{name},#{path})
+	</insert>
+	
+	<update id="updateCategory">
+		update hg_category set name=#{name},path=#{path} where id=#{id}
+	</update>
+	
+	<delete id="delete">
+		delete from hg_category where id=#{id}
+	</delete>
+</mapper>

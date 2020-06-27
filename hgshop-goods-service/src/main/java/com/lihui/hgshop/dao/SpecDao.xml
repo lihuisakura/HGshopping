@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lihui.hgshop.dao.SpecDao">
+
+	<select id="findSpecList" resultMap="specMap">
+		select * from hg_spec 
+		<where>
+			<if test="null!=name and name!=''">and spec_name like concat('%',#{name},'%')</if>
+		</where>
+		ORDER BY id desc
+	</select>
+	<select id="findSpecById" resultMap="specMap">
+		select * from hg_spec where id=#{id}
+	</select>
+
+	<select id="findSpecBySku" resultMap="specOptionMap">
+	select o.*,(select spec_name from hg_spec where id=o.spec_id) spec_name from hg_sku_spec b left join hg_sku k on k.id=b.sku_id
+	left join hg_spec p on b.spec_id=p.id
+	left join hg_spec_option o on b.spec_option_id=o.id
+	where k.id=#{id}
+	</select>
+
+	<resultMap type="SpecOption" id="specOptionMap">
+			<id property="id" column="id"/>
+			<result property="optionName" column="option_name"/>
+			<result property="specName" column="spec_name"/>
+			<result property="specId" column="spec_id"/>
+			<result property="orders" column="orders"/>
+	</resultMap>
+
+	<resultMap type="Spec" id="specMap">
+		<id property="id" column="id"/>
+		<result property="specName" column="spec_name"/>
+		<collection property="optionList" select="findSpecOption" ofType="SpecOption" column="id">
+			<id property="id" column="id"/>
+			<result property="optionName" column="option_name"/>
+			<result property="specName" column="spec_name"/>
+			<result property="specId" column="spec_id"/>
+			<result property="orders" column="orders"/>
+		</collection>
+	</resultMap>
+	
+	<select id="findSpecOption" resultType="SpecOption">
+		select * from hg_spec_option where spec_id=#{id}
+	</select>
+	
+	<delete id="deleteOption">
+		delete from hg_spec_option where spec_id=#{id}
+	</delete>
+	
+	<update id="update">
+		update hg_spec set spec_name=#{specName} where id=#{id}
+	</update>
+	
+	<insert id="addSpec" keyProperty="id" useGeneratedKeys="true">
+		insert into hg_spec values(null,#{specName})
+	</insert>
+	
+	<insert id="addSpecOption">
+		insert into hg_spec_option values(null,#{optionName},#{specId},#{orders})
+	</insert>
+	
+	<delete id="deleteOptionList">
+		delete from hg_spec_option where spec_id in
+		<foreach collection="array" item="id" separator="," open="(" close=")">
+		#{id}
+		</foreach>
+	</delete>
+	<delete id="deleteSpec">
+		delete from hg_spec where id in
+		<foreach collection="array" item="id" separator="," open="(" close=")">
+		#{id}
+		</foreach>
+	</delete>
+	
+</mapper>
